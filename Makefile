@@ -1,5 +1,6 @@
 VPP_BINARY_PATH=$(HOME)/vpp/build-root/build-vpp_debug-native/vpp/bin/vpp
 VPPCTL_BINARY_PATH=$(HOME)/vpp/build-root/build-vpp_debug-native/vpp/bin/vppctl
+TTS_TEMPLATE_VALUE=2
 
 .PHONY: help
 
@@ -12,7 +13,7 @@ help:
 
 network-setup:
 	@echo "Setting up network"
-	bash ./network/setup-network.sh
+	@VPP_BINARY_PATH=$(VPP_BINARY_PATH) VPPCTL_BINARY_PATH=$(VPPCTL_BINARY_PATH) TTS_TEMPLATE_VALUE=$(TTS_TEMPLATE_VALUE) bash ./network/setup-network.sh
 
 network-clean:
 	@echo "Cleaning up network"	
