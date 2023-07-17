@@ -1,24 +1,27 @@
-# Parameters for path-tracing
-# TTS_TEMPLATE_VALUE=2
+#!/bin/bash
+
+echo "##################################################"
+echo "# Setup network with parameters:" 
+echo "##################################################"
 echo "VPP_PATH: ${VPP_BINARY_PATH}"
-echo "$VPPCTL_BINARY_PATH_BINARY_PATH: ${$VPPCTL_BINARY_PATH_BINARY_PATH}"
+echo "VPP_CTL_PATH: ${VPPCTL_BINARY_PATH}"
 echo "TTS_TEMPLATE: ${TTS_TEMPLATE_VALUE}"
 
-##################################################
-# Start vpp instances
-##################################################
-sudo $VPP_BINARY_PATH api-segment { prefix vpp1 } socksvr { socket-name /run/vpp/api-vpp1.sock } cpu {main-core 3} unix { cli-listen /run/vpp/cli.vpp1.sock  cli-prompt vpp1# startup-config /etc/vpp/vpp1.conf} plugins { plugin dpdk_plugin.so { disable }
-sudo $VPP_BINARY_PATH api-segment { prefix vpp2 } socksvr { socket-name /run/vpp/api-vpp2.sock } cpu {main-core 4} unix { cli-listen /run/vpp/cli.vpp2.sock  cli-prompt vpp2# startup-config /etc/vpp/vpp2.conf} plugins { plugin dpdk_plugin.so { disable }
-sudo $VPP_BINARY_PATH api-segment { prefix vpp3 } socksvr { socket-name /run/vpp/api-vpp3.sock } cpu {main-core 5} unix { cli-listen /run/vpp/cli.vpp3.sock  cli-prompt vpp3# startup-config /etc/vpp/vpp3.conf} plugins { plugin dpdk_plugin.so { disable }
-sudo $VPP_BINARY_PATH api-segment { prefix vpp4 } socksvr { socket-name /run/vpp/api-vpp4.sock } cpu {main-core 6} unix { cli-listen /run/vpp/cli.vpp4.sock  cli-prompt vpp4# startup-config /etc/vpp/vpp4.conf} plugins { plugin dpdk_plugin.so { disable }
-sudo $VPP_BINARY_PATH api-segment { prefix vpp5 } socksvr { socket-name /run/vpp/api-vpp5.sock } cpu {main-core 7} unix { cli-listen /run/vpp/cli.vpp5.sock  cli-prompt vpp5# startup-config /etc/vpp/vpp5.conf} plugins { plugin dpdk_plugin.so { disable }
-sudo $VPP_BINARY_PATH api-segment { prefix vpp6 } socksvr { socket-name /run/vpp/api-vpp6.sock } cpu {main-core 8} unix { cli-listen /run/vpp/cli.vpp6.sock  cli-prompt vpp6# startup-config /etc/vpp/vpp6.conf} plugins { plugin dpdk_plugin.so { disable }
-sudo $VPP_BINARY_PATH api-segment { prefix vpp7 } socksvr { socket-name /run/vpp/api-vpp7.sock } cpu {main-core 9} unix { cli-listen /run/vpp/cli.vpp7.sock  cli-prompt vpp7# startup-config /etc/vpp/vpp7.conf} plugins { plugin dpdk_plugin.so { disable }
+echo "##################################################"
+echo "# Start vpp instances"
+echo "##################################################"
+sudo $VPP_BINARY_PATH api-segment { prefix vpp1 } socksvr { socket-name /run/vpp/api-vpp1.sock } cpu {main-core 3} unix { cli-listen /run/vpp/cli.vpp1.sock  cli-prompt vpp1# } plugins { plugin default { disable } plugin af_packet_plugin.so { enable } } statseg { socket-name /run/vpp/stats-vpp1.sock}
+sudo $VPP_BINARY_PATH api-segment { prefix vpp2 } socksvr { socket-name /run/vpp/api-vpp2.sock } cpu {main-core 4} unix { cli-listen /run/vpp/cli.vpp2.sock  cli-prompt vpp2# } plugins { plugin default { disable } } statseg { socket-name /run/vpp/stats-vpp2.sock}
+sudo $VPP_BINARY_PATH api-segment { prefix vpp3 } socksvr { socket-name /run/vpp/api-vpp3.sock } cpu {main-core 5} unix { cli-listen /run/vpp/cli.vpp3.sock  cli-prompt vpp3# } plugins { plugin default { disable } } statseg { socket-name /run/vpp/stats-vpp3.sock}
+sudo $VPP_BINARY_PATH api-segment { prefix vpp4 } socksvr { socket-name /run/vpp/api-vpp4.sock } cpu {main-core 6} unix { cli-listen /run/vpp/cli.vpp4.sock  cli-prompt vpp4# } plugins { plugin default { disable } } statseg { socket-name /run/vpp/stats-vpp4.sock}
+sudo $VPP_BINARY_PATH api-segment { prefix vpp5 } socksvr { socket-name /run/vpp/api-vpp5.sock } cpu {main-core 7} unix { cli-listen /run/vpp/cli.vpp5.sock  cli-prompt vpp5# } plugins { plugin default { disable } } statseg { socket-name /run/vpp/stats-vpp5.sock}
+sudo $VPP_BINARY_PATH api-segment { prefix vpp6 } socksvr { socket-name /run/vpp/api-vpp6.sock } cpu {main-core 8} unix { cli-listen /run/vpp/cli.vpp6.sock  cli-prompt vpp6# } plugins { plugin default { disable } } statseg { socket-name /run/vpp/stats-vpp6.sock}
+sudo $VPP_BINARY_PATH api-segment { prefix vpp7 } socksvr { socket-name /run/vpp/api-vpp7.sock } cpu {main-core 9} unix { cli-listen /run/vpp/cli.vpp7.sock  cli-prompt vpp7# } plugins { plugin default { disable } plugin af_packet_plugin.so { enable } } statseg { socket-name /run/vpp/stats-vpp7.sock}
 sudo sleep 5
 
-##################################################
-# Create virtual network (linux veth and bridges)
-##################################################
+echo "##################################################"
+echo "# Create virtual network (linux veth and bridges)"
+echo "##################################################"
 # Virtual links (bridges)
 sudo brctl addbr br12
 sudo brctl addbr br13
@@ -47,34 +50,43 @@ sudo ifconfig brcollector up
 
 # Create veth pairs between probe generator and vpp 
 sudo ip link add linux1 type veth peer name vpp1
-sudo ip link add linux6 type veth peer name vpp6
 sudo ip link add linux7 type veth peer name vpp7
 
-# Create veth pair between PE nodes (vpp1, vpp6, vpp7 and vpp8) and collector 
+# Create veth pair between PE nodes (vpp1 and vpp7) and collector 
 sudo ip link add veth0 type veth peer name collector
 sudo ip link add veth1 type veth peer name ext-vpp1
-sudo ip link add veth6 type veth peer name ext-vpp6
 sudo ip link add veth7 type veth peer name ext-vpp7
 # Connect bridge with PE nodes to collector
-sudo brctl addif brcollector veth0 veth1 veth6 veth7
+sudo brctl addif brcollector veth0 veth1 veth7
 # Configure probe collector ip address
 sudo ip -6 address add 2001:db8:c:e::c/64 dev collector
 
 # Bring up all veth
-sudo ifconfig linux1 up
-sudo ifconfig linux6 up
-sudo ifconfig linux7 up
-sudo ifconfig vpp1 up
-sudo ifconfig vpp6 up
-sudo ifconfig vpp7 up
-sudo ifconfig veth0 up
-sudo ifconfig veth1 up
-sudo ifconfig veth6 up
-sudo ifconfig veth7 up
-sudo ifconfig collector up
-sudo ifconfig ext-vpp1 up
-sudo ifconfig ext-vpp6 up
-sudo ifconfig ext-vpp7 up
+sudo ip link set dev linux1 up
+sudo ip link set dev linux7 up
+sudo ip link set dev vpp1 up
+sudo ip link set dev vpp7 up
+sudo ip link set dev veth0 up
+sudo ip link set dev veth1 up
+sudo ip link set dev veth7 up
+sudo ip link set dev collector up
+sudo ip link set dev ext-vpp1 up
+sudo ip link set dev ext-vpp7 up
+
+sudo sleep 5
+
+echo "##################################################"
+echo "# Create network namespaces and routes"
+echo "##################################################"
+# Connect vpp1, vpp6, vpp7, and vpp8 to host client interfaces (for generating startup ping traffic and iperf3 tests)
+sudo ip link add host-1 type veth peer name client-vpp1
+sudo ip link add host-7 type veth peer name client-vpp7
+
+# Bring up all veths
+sudo ifconfig host-1 up
+sudo ifconfig host-7 up
+sudo ifconfig client-vpp1 up
+sudo ifconfig client-vpp7 up
 
 # Create host-1, host-6, host-7, host-8 (in separate network namespaces)
 # Setup routes to ping all vpp loopbacks and the other host respectively
@@ -94,10 +106,12 @@ sudo ip netns exec ns-host-7 ip -6 address add fcbb:aa00:7::a/48 dev host-7     
 sudo ip netns exec ns-host-7 ip -6 route add fcbb:bb00::/32 via 2001:db8:a:7::7 dev host-7  metric 1    #route to reach internal vpp-network loopbacks
 sudo ip netns exec ns-host-7 ip -6 route add fcbb:aa00:1::/48 via 2001:db8:a:7::7 dev host-7 metric 1   #route to reach host-1 from host-7 via vpp network
 
-#########################
-# VPP 1
-#########################
-# Interfaces
+
+
+echo "############################################"
+echo "### Start VPP configuration"
+echo "############################################"
+echo "### VPP1"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock loopback create-interface                                         # Loopback interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock enable ip6 interface loop0
@@ -142,10 +156,10 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48 via 2001:db8:1:3::3
 
 # Path Tracing Configuration 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock pt iface add iface tap10 id 11 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock pt iface add iface tap11 id 10 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap10 id 11 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap11 id 10 tts-template ${TTS_TEMPLATE_VALUE}
 # TODO
-# sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock pt probe-inject-iface add iface host-vpp1 
+# sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add probe-inject-iface host-vpp1 
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock set sr encaps source addr 2001:db8:c:e::1
@@ -158,7 +172,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr policy add bsid fcbb:bb00:
 #########################
 # VPP 2
 #########################
-# Interfaces
+echo "### VPP 2 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock loopback create-interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock enable ip6 interface loop0
@@ -194,9 +208,9 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:aa00:7::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:aa00:7::/48 via 2001:db8:2:5::5
 
 # Path Tracing Configuration
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock pt iface add iface tap20 id 20 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock pt iface add iface tap21 id 21 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock pt iface add iface tap22 id 22 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock sr pt add iface tap20 id 20 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock sr pt add iface tap21 id 21 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock sr pt add iface tap22 id 22 tts-template ${TTS_TEMPLATE_VALUE}
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock set sr encaps source addr fcbb:bb00:2::1
@@ -206,7 +220,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock sr localsid address fcbb:bb00
 #########################
 # VPP 3
 #########################
-# Interfaces
+echo "### VPP 3 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock loopback create-interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock enable ip6 interface loop0
@@ -248,10 +262,10 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:aa00:7::/48
 
 
 # Path Tracing Configuration
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock pt iface add iface tap30 id 30 tts-template ${TTS_TEMPLATE_VALUE} 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock pt iface add iface tap31 id 31 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock pt iface add iface tap32 id 32 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock pt iface add iface tap33 id 33 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock sr pt add iface tap30 id 30 tts-template ${TTS_TEMPLATE_VALUE} 
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock sr pt add iface tap31 id 31 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock sr pt add iface tap32 id 32 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock sr pt add iface tap33 id 33 tts-template ${TTS_TEMPLATE_VALUE}
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock set sr encaps source addr fcbb:bb00:3::1
@@ -261,7 +275,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock sr localsid address fcbb:bb00
 #########################
 # VPP 4
 #########################
-# Interfaces
+echo "### VPP 4 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock loopback create-interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock enable ip6 interface loop0
@@ -298,9 +312,9 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock ip route add fcbb:aa00:1::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock ip route add fcbb:aa00:7::/48 via 2001:db8:4:7::7
 
 # Path Tracing Configuration 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock pt iface add iface tap40 id 40 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock pt iface add iface tap41 id 41 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock pt iface add iface tap42 id 42 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock sr pt add iface tap40 id 40 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock sr pt add iface tap41 id 41 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock sr pt add iface tap42 id 42 tts-template ${TTS_TEMPLATE_VALUE}
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock set sr encaps source addr fcbb:bb00:4::1
@@ -310,7 +324,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock sr localsid address fcbb:bb00
 #########################
 # VPP 5
 #########################
-# Interfaces
+echo "### VPP 5 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock loopback create-interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock enable ip6 interface loop0
@@ -351,10 +365,10 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock ip route add fcbb:aa00:1::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock ip route add fcbb:aa00:7::/48 via 2001:db8:5:7::7
 
 # Path Tracing Configuration 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock pt iface add iface tap50 id 50 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock pt iface add iface tap51 id 51 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock pt iface add iface tap52 id 52 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock pt iface add iface tap53 id 53 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock sr pt add iface tap50 id 50 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock sr pt add iface tap51 id 51 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock sr pt add iface tap52 id 52 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock sr pt add iface tap53 id 53 tts-template ${TTS_TEMPLATE_VALUE}
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock set sr encaps source addr fcbb:bb00:5::1
@@ -365,7 +379,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock sr localsid address fcbb:bb00
 #########################
 # VPP 6
 #########################
-# Interfaces
+echo "### VPP 6 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock loopback create-interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock enable ip6 interface loop0
@@ -393,8 +407,8 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock ip route add fcbb:aa00:1::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock ip route add fcbb:aa00:7::/48 via 2001:db8:5:6::5
 
 # Path Tracing Configuration 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock pt iface add iface tap60 id 60 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock pt iface add iface tap61 id 61 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock sr pt add iface tap60 id 60 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock sr pt add iface tap61 id 61 tts-template ${TTS_TEMPLATE_VALUE}
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock set sr encaps source addr 2001:db8:c:e::6
@@ -404,7 +418,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock sr localsid address fcbb:bb00
 #########################
 # VPP 7
 #########################
-# Interfaces
+echo "### VPP 7 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock loopback create-interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock enable ip6 interface loop0
@@ -451,10 +465,10 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock ip route add fcbb:aa00:7::/48
 
 
 # Path Tracing Configuration 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock pt iface add iface tap70 id 70 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock pt iface add iface tap71 id 71 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr pt add iface tap70 id 70 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr pt add iface tap71 id 71 tts-template ${TTS_TEMPLATE_VALUE}
 # TODO
-# sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock pt probe-inject-iface add iface host-vpp7 
+# sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr pt add probe-inject-iface host-vpp7 
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock set sr encaps source addr 2001:db8:c:e::7
@@ -464,9 +478,9 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr localsid address fcbb:bb00
 # SRv6 Policies
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr policy add bsid fcbb:bb00:0007:f0ef:: next 2001:db8:c:e::c encap tef
 
-##################################################
-# Ping to startup network & arp
-##################################################
+echo "##################################################"
+echo "# Ping to startup network & arp"
+echo "##################################################"
 sudo ip netns exec ns-host-1 ping fcbb:aa00:7::a -c 5 &
 sudo ip netns exec ns-host-7 ping fcbb:aa00:1::a -c 5 &
 sleep 10

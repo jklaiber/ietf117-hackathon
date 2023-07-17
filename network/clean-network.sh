@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "##################################################"
+echo "# Cleaning up network..." 
+echo "##################################################"
 # kill all vpp instances 
 echo "Killing all vpp instances"
 sudo kill $(pidof vpp)
