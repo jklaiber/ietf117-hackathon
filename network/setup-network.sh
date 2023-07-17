@@ -111,7 +111,7 @@ sudo ip netns exec ns-host-7 ip -6 route add fcbb:aa00:1::/48 via 2001:db8:a:7::
 echo "############################################"
 echo "### Start VPP configuration"
 echo "############################################"
-echo "### VPP1"
+echo "### VPP1 ###"
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock loopback create-interface                                         # Loopback interface
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock set interface state loop0 up
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock enable ip6 interface loop0
