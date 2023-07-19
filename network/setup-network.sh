@@ -151,6 +151,8 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:bb00:4::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:bb00:5::/48 via 2001:db8:1:3::3
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:bb00:5::/48 via 2001:db8:1:2::2
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:bb00:6::/48 via 2001:db8:1:3::3
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:bb00:7::/48 via 2001:db8:1:2::2
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:bb00:7::/48 via 2001:db8:1:3::3
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:1::/48 via 2001:db8:a:1::a
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48 via 2001:db8:1:2::2
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48 via 2001:db8:1:3::3
@@ -159,7 +161,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap10 id 11 tts-template ${TTS_TEMPLATE_VALUE}
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap11 id 10 tts-template ${TTS_TEMPLATE_VALUE}
 # TODO
-# sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add probe-inject-iface host-vpp1 
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add probe-inject-iface host-vpp1 
 
 # SRv6 Configuration
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock set sr encaps source addr 2001:db8:c:e::1
