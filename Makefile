@@ -43,7 +43,7 @@ connect_%:
 generate-api-files:
 	@echo "Generating API files"
 	cd ../govpp/cmd/binapi-generator && \
-	go run main.go --input-file=$(GOVPP_INPUT_FILES) --output-dir=$(GOVPP_OUTPUT_DIR) --input-dir=$(GOVPP_INPUT_DIR)
+	go run main.go --input=$(GOVPP_INPUT_DIR) --output-dir=$(GOVPP_OUTPUT_DIR)
 
 build-apitest:
 	@echo "Building apitest"
