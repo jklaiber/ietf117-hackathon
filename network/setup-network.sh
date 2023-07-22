@@ -158,8 +158,8 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock ip route add fcbb:aa00:7::/48 via 2001:db8:1:3::3
 
 # Path Tracing Configuration 
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap10 id 11 tts-template ${TTS_TEMPLATE_VALUE}
-sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap11 id 10 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap10 id 10 tts-template ${TTS_TEMPLATE_VALUE}
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add iface tap11 id 11 tts-template ${TTS_TEMPLATE_VALUE}
 # TODO
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock sr pt add probe-inject-iface host-vpp1 
 
