@@ -1,0 +1,81 @@
+fcbb:bb00:1::1:
+  node_id: vpp1
+  interfaces:
+    tap11:
+      id: 11
+      tts_template: 2
+    tap10:
+      id: 10
+      tts_template: 2
+fcbb:bb00:2::1:
+  node_id: vpp2
+  interfaces:
+    tap20:
+      id: 20
+      tts_template: 2
+    tap21:
+      id: 21
+      tts_template: 2
+    tap22:
+      id: 22
+      tts_template: 2
+fcbb:bb00:3::1:
+  node_id: vpp3
+  interfaces:
+    tap30:
+      id: 30
+      tts_template: 2
+    tap31:
+      id: 31
+      tts_template: 2
+    tap32:
+      id: 32
+      tts_template: 2
+    tap33:
+      id: 33
+      tts_template: 2
+fcbb:bb00:4::1:
+  node_id: vpp4
+  interfaces:
+    tap40:
+      id: 40
+      tts_template: 2
+    tap41:
+      id: 41
+      tts_template: 2
+    tap42:
+      id: 42
+      tts_template: 2
+fcbb:bb00:5::1:
+  node_id: vpp5
+  interfaces:
+    tap50:
+      id: 50
+      tts_template: 2
+    tap51:
+      id: 51
+      tts_template: 2
+    tap52:
+      id: 52
+      tts_template: 2
+    tap53:
+      id: 53
+      tts_template: 2
+fcbb:bb00:6::1:
+  node_id: vpp6
+  interfaces:
+    tap60:
+      id: 60
+      tts_template: 2
+    tap61:
+      id: 61
+      tts_template: 2
+2001:db8:c:e::7:
+  node_id: vpp7
+  interfaces:
+    tap70:
+      id: 70
+      tts_template: 2
+    tap71:
+      id: 71
+      tts_template: 2

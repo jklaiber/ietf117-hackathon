@@ -1,0 +1,57 @@
+---
+nodes:
+  - name: vpp1
+    nos:
+  - name: vpp2
+    nos:
+  - name: vpp3
+    nos:
+  - name: vpp4
+    nos:
+  - name: vpp5
+    nos:
+  - name: vpp6
+    nos:
+  - name: vpp7
+    nos:
+edges:
+  - src_node: vpp1
+    dst_node: vpp2
+    src_intf: tap11
+    dst_intf: tap20
+  - src_node: vpp1
+    dst_node: vpp3
+    src_intf: tap10
+    dst_intf: tap32
+  - src_node: vpp2
+    dst_node: vpp4
+    src_intf: tap22
+    dst_intf: tap40
+  - src_node: vpp2
+    dst_node: vpp5
+    src_intf: tap21
+    dst_intf: tap52
+  - src_node: vpp3
+    dst_node: vpp4
+    src_intf: tap31
+    dst_intf: tap41
+  - src_node: vpp3
+    dst_node: vpp5
+    src_intf: tap30
+    dst_intf: tap50
+  - src_node: vpp3
+    dst_node: vpp6
+    src_intf: tap33
+    dst_intf: tap60
+  - src_node: vpp4
+    dst_node: vpp7
+    src_intf: tap42
+    dst_intf: tap70
+  - src_node: vpp5
+    dst_node: vpp6
+    src_intf: tap53
+    dst_intf: tap61
+  - src_node: vpp5
+    dst_node: vpp7 
+    src_intf: tap51
+    dst_intf: tap71

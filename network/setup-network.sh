@@ -201,6 +201,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:1::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:4::/48 via 2001:db8:2:4::4
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:5::/48 via 2001:db8:2:5::5
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:3::/48 via 2001:db8:1:2::1
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:3::/48 via 2001:db8:2:4::4
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:3::/48 via 2001:db8:2:5::5
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:6::/48 via 2001:db8:2:5::5
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock ip route add fcbb:bb00:7::/48 via 2001:db8:2:4::4
@@ -254,6 +255,7 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:1::/48
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:4::/48 via 2001:db8:3:4::4
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:5::/48 via 2001:db8:3:5::5
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:2::/48 via 2001:db8:1:3::1
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:2::/48 via 2001:db8:3:5::5
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:2::/48 via 2001:db8:3:4::4
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:6::/48 via 2001:db8:3:6::6
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock ip route add fcbb:bb00:7::/48 via 2001:db8:3:4::4
@@ -479,6 +481,19 @@ sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr localsid address fcbb:bb00
 
 # SRv6 Policies
 sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock sr policy add bsid fcbb:bb00:0007:f0ef:: next 2001:db8:c:e::c encap tef
+
+echo "##################################################"
+echo "# Fix for loadbalancing in mid nodes"
+echo "# Otherwise hash for certain flow is the same for all vpp nodes, this resulting in load balancing only working at first hop"
+echo "# (not ideal, though working)"
+echo "##################################################"
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp1.sock set ip6 flow-hash table 0 src dst sport dport proto flowlabel # default 
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp2.sock set ip6 flow-hash table 0 src dport proto flowlabel
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp3.sock set ip6 flow-hash table 0 dst dport proto flowlabel
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp4.sock set ip6 flow-hash table 0 src sport proto flowlabel
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp5.sock set ip6 flow-hash table 0 dst sport dport proto flowlabel
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp6.sock set ip6 flow-hash table 0 src dst sport dport proto flowlabel # default 
+sudo $VPPCTL_BINARY_PATH -s /run/vpp/cli.vpp7.sock set ip6 flow-hash table 0 src dst sport dport proto flowlabel # default 
 
 echo "##################################################"
 echo "# Ping to startup network & arp"

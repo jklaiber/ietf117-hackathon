@@ -1,0 +1,160 @@
+vpp1_10:
+  dst_intf: tap32
+  dst_intf_id: 32
+  dst_node: vpp3
+  src_intf: tap10
+  src_intf_id: 10
+  src_node: vpp1
+  tts_template: 2
+vpp1_11:
+  dst_intf: tap20
+  dst_intf_id: 20
+  dst_node: vpp2
+  src_intf: tap11
+  src_intf_id: 11
+  src_node: vpp1
+  tts_template: 2
+vpp2_20:
+  dst_intf: tap11
+  dst_intf_id: 11
+  dst_node: vpp1
+  src_intf: tap20
+  src_intf_id: 20
+  src_node: vpp2
+  tts_template: 2
+vpp2_21:
+  dst_intf: tap52
+  dst_intf_id: 52
+  dst_node: vpp5
+  src_intf: tap21
+  src_intf_id: 21
+  src_node: vpp2
+  tts_template: 2
+vpp2_22:
+  dst_intf: tap40
+  dst_intf_id: 40
+  dst_node: vpp4
+  src_intf: tap22
+  src_intf_id: 22
+  src_node: vpp2
+  tts_template: 2
+vpp3_30:
+  dst_intf: tap50
+  dst_intf_id: 50
+  dst_node: vpp5
+  src_intf: tap30
+  src_intf_id: 30
+  src_node: vpp3
+  tts_template: 2
+vpp3_31:
+  dst_intf: tap41
+  dst_intf_id: 41
+  dst_node: vpp4
+  src_intf: tap31
+  src_intf_id: 31
+  src_node: vpp3
+  tts_template: 2
+vpp3_32:
+  dst_intf: tap10
+  dst_intf_id: 10
+  dst_node: vpp1
+  src_intf: tap32
+  src_intf_id: 32
+  src_node: vpp3
+  tts_template: 2
+vpp3_33:
+  dst_intf: tap60
+  dst_intf_id: 60
+  dst_node: vpp6
+  src_intf: tap33
+  src_intf_id: 33
+  src_node: vpp3
+  tts_template: 2
+vpp4_40:
+  dst_intf: tap22
+  dst_intf_id: 22
+  dst_node: vpp2
+  src_intf: tap40
+  src_intf_id: 40
+  src_node: vpp4
+  tts_template: 2
+vpp4_41:
+  dst_intf: tap31
+  dst_intf_id: 31
+  dst_node: vpp3
+  src_intf: tap41
+  src_intf_id: 41
+  src_node: vpp4
+  tts_template: 2
+vpp4_42:
+  dst_intf: tap70
+  dst_intf_id: 70
+  dst_node: vpp7
+  src_intf: tap42
+  src_intf_id: 42
+  src_node: vpp4
+  tts_template: 2
+vpp5_50:
+  dst_intf: tap30
+  dst_intf_id: 30
+  dst_node: vpp3
+  src_intf: tap50
+  src_intf_id: 50
+  src_node: vpp5
+  tts_template: 2
+vpp5_51:
+  dst_intf: tap71
+  dst_intf_id: 71
+  dst_node: vpp7
+  src_intf: tap51
+  src_intf_id: 51
+  src_node: vpp5
+  tts_template: 2
+vpp5_52:
+  dst_intf: tap21
+  dst_intf_id: 21
+  dst_node: vpp2
+  src_intf: tap52
+  src_intf_id: 52
+  src_node: vpp5
+  tts_template: 2
+vpp5_53:
+  dst_intf: tap61
+  dst_intf_id: 61
+  dst_node: vpp6
+  src_intf: tap53
+  src_intf_id: 53
+  src_node: vpp5
+  tts_template: 2
+vpp6_60:
+  dst_intf: tap33
+  dst_intf_id: 33
+  dst_node: vpp3
+  src_intf: tap60
+  src_intf_id: 60
+  src_node: vpp6
+  tts_template: 2
+vpp6_61:
+  dst_intf: tap53
+  dst_intf_id: 53
+  dst_node: vpp5
+  src_intf: tap61
+  src_intf_id: 61
+  src_node: vpp6
+  tts_template: 2
+vpp7_70:
+  dst_intf: tap42
+  dst_intf_id: 42
+  dst_node: vpp4
+  src_intf: tap70
+  src_intf_id: 70
+  src_node: vpp7
+  tts_template: 2
+vpp7_71:
+  dst_intf: tap51
+  dst_intf_id: 51
+  dst_node: vpp5
+  src_intf: tap71
+  src_intf_id: 71
+  src_node: vpp7
+  tts_template: 2

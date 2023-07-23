@@ -8,6 +8,7 @@ GOVPP_OUTPUT_DIR=$(HOME)/govpp/binapi
 PT_PROBECOLLECTOR_PATH=$(HOME)/probe-collector/bin/
 PT_PROBEGEN_PATH=./bins/ptprobegen
 PT_PROBEGEN_CLIENT_PATH=./bins/ptprobegen-client
+ANALYZER_CONFIG_PATH=$(HOME)/ietf117-hackathon/analyzers
 
 .PHONY: help
 
@@ -16,19 +17,30 @@ help:
 	@echo "Targets:"
 	@echo "  help 			- print this help"
 	@echo "  install-deps 		- install dependencies"
-	@echo "  network-setup 	- setup network"
-	@echo "  network-clean 	- clean network"
-	@echo "  connect_X 		- connect to VPP instance X"
+	@echo "  network-setup 		- setup network"
+	@echo "  network-clean 		- clean network"
+	@echo "  connect_<node> 		- connect to VPP CLI"
 	@echo "  generate-api-files 	- generate API files"
-	@echo "  build-apitest 	- build apitest"
+	@echo "  build-apitest 		- build apitest"
 	@echo "  run-apitest 		- run apitest"
-	@echo "  start-collector 	- start collector"
-	@echo "  start-probing 	- start probing"
+	@echo "  start-collector 		- start collector"
+	@echo "  stop-collector 		- stop collector"
+	@echo "  start-probing 		- start probing"
+	@echo "  stop-probing 		- stop probing"
+	@echo "  generate-analyzer-topo 	- generate analyzer topology"
+	@echo "  start-analyzers 		- start analyzers"
+	@echo "  stop-analyzers 		- stop analyzers"
+	@echo "  start-aggregator 		- start aggregator"
+	@echo "  stop-aggregator 		- stop aggregator"
+	@echo "  start-pipeline 		- start pipeline"
+	@echo "  stop-pipeline 		- stop pipeline"
+	@echo "  set-delay 		- set delay on interface 22"
+	@echo "  delete-delay 		- delete delay on interface 22"
 
 
 install-deps:
 	@echo "Installing dependencies"
-	@sudo apt-get install -y net-tools bridge-utils 
+	@sudo apt-get install -y net-tools bridge-utils jq
 
 network-setup:
 	@VPP_BINARY_PATH=$(VPP_BINARY_PATH) VPPCTL_BINARY_PATH=$(VPPCTL_BINARY_PATH) TTS_TEMPLATE_VALUE=$(TTS_TEMPLATE_VALUE) bash ./network/setup-network.sh
@@ -55,10 +67,50 @@ run-apitest:
 
 start-collector:
 	@echo "Starting collector"
-	sudo $(PT_PROBECOLLECTOR_PATH)/probe-collector --port collector --file $(HOME)/ietf117-hackathon/tests/collector.log
+	sudo $(PT_PROBECOLLECTOR_PATH)/probe-collector --port collector --kafka 172.16.16.28:9093 &
+
+stop-collector:
+	@echo "Stopping collector"
+	sudo pkill -f probe-collector
 
 start-probing:
 	@echo "Starting probing"
-	sudo $(PT_PROBEGEN_PATH) --ptprobegen-port=linux1 --api-endpoint=0.0.0.0:50001 &
-	sleep 5
-	sudo $(PT_PROBEGEN_CLIENT_PATH) --fls=1 --fle=3600 --ppf=100 --tc=1 --src-addr=fcbb:bb00:1::1 --tef-sid=fcbb:bb00:7:f0ef:: --segment-list=fcbb:bb00:7:f0ef:: --ptprobegen=127.0.0.1:50001
+	@PT_PROBEGEN_PATH=$(PT_PROBEGEN_PATH) PT_PROBEGEN_CLIENT_PATH=$(PT_PROBEGEN_CLIENT_PATH) bash ./probing/start-probing.sh
+
+stop-probing:
+	@echo "Stopping probing"
+	sudo pkill -f ptprobegen
+	sudo pkill -f ptprobegen-client
+
+generate-analyzer-topo:
+	@echo "Generating analyzer topology"
+	cd $(HOME)/analyzers && \
+	python3 edges_colored_dict_builder.py --color-file=$(ANALYZER_CONFIG_PATH)/node-config.yml --topo-file=$(ANALYZER_CONFIG_PATH)/topology.yml --out-file=$(ANALYZER_CONFIG_PATH)/edges-colored-dict.yml
+
+start-analyzers:
+	@echo "Starting analyzers"
+	@ANALYZER_CONFIG_PATH=$(ANALYZER_CONFIG_PATH) bash ./analyzers/start-analyzers.sh
+
+stop-analyzers:
+	@echo "Stopping analyzers"
+	sudo pkill -f python3
+
+start-aggregator:
+	@echo "Starting aggregator"
+	$(HOME)/pt-analyzer/binaries/probe-aggregator --influxdb-org=pathtracing --influxdb-token=$(shell docker exec influxdb influx auth list --json | jq -r .[].token) --kafka-server=172.16.16.28:9093 &
+
+stop-aggregator:
+	@echo "Stopping aggregator"
+	sudo pkill -f probe-aggregator
+
+start-pipeline: start-collector start-aggregator start-analyzers
+
+stop-pipeline: stop-analyzers stop-aggregator stop-collector
+
+set-delay:
+	@echo "Setting delay on interface 22"
+	sudo tc qdisc add dev tap4 root netem delay 10ms
+
+delete-delay:
+	@echo "Deleting delay on interface 22"
+	sudo tc qdisc del dev tap4 root netem
