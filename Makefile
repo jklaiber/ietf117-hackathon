@@ -111,9 +111,13 @@ stop-kafka:
 	@echo "Stopping kafka"
 	docker-compose -f $(HOME)/scripts/kafka/install_kafka.yml down
 
-start-pipeline: start-collector start-aggregator start-analyzers
+start-pipeline: 
+	@echo "Starting pipeline"
+	docker-compose up -d
 
-stop-pipeline: stop-analyzers stop-aggregator stop-collector
+stop-pipeline: 
+	@echo "Stopping pipeline"
+	docker-compose down	
 
 set-delay_%:
 	@echo "Setting delay on interface 22 and 40"
