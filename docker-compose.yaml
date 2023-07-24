@@ -1,0 +1,127 @@
+version: '3'
+services:
+  zookeeper:
+    image: 'bitnami/zookeeper:3.8.1'
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - pt
+  kafka:
+    image: 'bitnami/kafka:3.3.2-debian-11-r16'
+    ports:
+      - '9092:9092'
+      - '9093:9093'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://172.16.16.28:9093 # Adjust to your IP!
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      - pt
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics.sh --bootstrap-server kafka:9092 --topic hc --create --if-not-exists && kafka-topics.sh --bootstrap-server kafka:9092 --topic hc --describe"
+        ]
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  influxdb:
+    image: influxdb:2.1.1
+    ports:
+      - '8086:8086'
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=pathtracing
+      - DOCKER_INFLUXDB_INIT_PASSWORD=pathtracing
+      - DOCKER_INFLUXDB_INIT_ORG=pathtracing
+      - DOCKER_INFLUXDB_INIT_BUCKET=ProbeBins
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=pathtracing
+      - DOCKER_INFLUXDB_INIT_RETENTION=1h
+    networks:
+      - pt
+    volumes:
+      - /tmp/testdata/influx:/root/.influxdbv2
+      # - /tmp/influxdb:/var/lib/influxdb
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8086/ping" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  pt-aggregator:
+    image: pt-aggregator:latest
+    command: --influxdb-server=http://influxdb:8086 --influxdb-org=pathtracing --influxdb-token=pathtracing --kafka-server=kafka:9092 --logtostderr
+    networks:
+      - pt
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  pa-analyzer:
+    image: pt-analyzer:latest
+    command: pa_analyzer.py --config-file=node-config.yml --kafka-addr=kafka --kafka-port=9092
+    networks:
+      - pt
+    volumes:
+      - ./analyzers/node-config.yml:/app/node-config.yml
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  pt-analyzer:
+    image: pt-analyzer:latest
+    command: pt_analyzer.py --color-file=edges-colored-dict.yml --kafka-addr=kafka --kafka-port=9092
+    networks:
+      - pt
+    volumes:
+      - ./analyzers/edges-colored-dict.yml:/app/edges-colored-dict.yml
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  tts-analyzer:
+    image: pt-analyzer:latest
+    command: tts_analyzer.py --kafka-addr=kafka --kafka-port=9092
+    networks:
+      - pt
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  probe-collector:
+    image: probe-collector:latest
+    command: --port collector --kafka 172.16.16.28:9093
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  pt-probegen:
+    image: pt-probegen:latest
+    command: --ptprobegen-port=linux1 --api-endpoint=0.0.0.0:50001
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host
+
+networks:
+  pt:

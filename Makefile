@@ -103,14 +103,22 @@ stop-aggregator:
 	@echo "Stopping aggregator"
 	sudo pkill -f probe-aggregator
 
+start-kafka:
+	@echo "Starting kafka"
+	docker-compose -f $(HOME)/scripts/kafka/install_kafka.yml up -d
+
+stop-kafka:
+	@echo "Stopping kafka"
+	docker-compose -f $(HOME)/scripts/kafka/install_kafka.yml down
+
 start-pipeline: start-collector start-aggregator start-analyzers
 
 stop-pipeline: stop-analyzers stop-aggregator stop-collector
 
-set-delay:
+set-delay_%:
 	@echo "Setting delay on interface 22 and 40"
-	sudo tc qdisc add dev tap4 root netem delay 100ms
-	sudo tc qdisc add dev tap9 root netem delay 100ms
+	sudo tc qdisc add dev tap4 root netem delay $*ms
+	sudo tc qdisc add dev tap9 root netem delay $*ms
 
 delete-delay:
 	@echo "Deleting delay on interface 22 and 40"
