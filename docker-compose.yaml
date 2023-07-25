@@ -1,6 +1,7 @@
 version: '3'
 services:
   zookeeper:
+    container_name: zookeeper
     image: 'bitnami/zookeeper:3.8.1'
     ports:
       - '2181:2181'
@@ -9,6 +10,7 @@ services:
     networks:
       - pt
   kafka:
+    container_name: kafka
     image: 'bitnami/kafka:3.3.2-debian-11-r16'
     ports:
       - '9092:9092'
@@ -37,6 +39,7 @@ services:
       retries: 5
 
   influxdb:
+    container_name: influxdb
     image: influxdb:2.1.1
     ports:
       - '8086:8086'
@@ -51,8 +54,7 @@ services:
     networks:
       - pt
     volumes:
-      - /tmp/testdata/influx:/root/.influxdbv2
-      # - /tmp/influxdb:/var/lib/influxdb
+      - /tmp/influxdb:/var/lib/influxdb
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8086/ping" ]
       start_period: 10s
@@ -61,6 +63,7 @@ services:
       retries: 5
 
   pt-aggregator:
+    container_name: pt-aggregator
     image: pt-aggregator:latest
     command: --influxdb-server=http://influxdb:8086 --influxdb-org=pathtracing --influxdb-token=pathtracing --kafka-server=kafka:9092 --logtostderr
     networks:
@@ -72,6 +75,7 @@ services:
         condition: service_healthy
 
   pa-analyzer:
+    container_name: pa-analyzer
     image: pt-analyzer:latest
     command: pa_analyzer.py --config-file=node-config.yml --kafka-addr=kafka --kafka-port=9092
     networks:
@@ -83,6 +87,7 @@ services:
         condition: service_healthy
 
   pt-analyzer:
+    container_name: pt-analyzer
     image: pt-analyzer:latest
     command: pt_analyzer.py --color-file=edges-colored-dict.yml --kafka-addr=kafka --kafka-port=9092
     networks:
@@ -94,6 +99,7 @@ services:
         condition: service_healthy
 
   tts-analyzer:
+    container_name: tts-analyzer
     image: pt-analyzer:latest
     command: tts_analyzer.py --kafka-addr=kafka --kafka-port=9092
     networks:
@@ -103,6 +109,7 @@ services:
         condition: service_healthy
 
   probe-collector:
+    container_name: probe-collector
     image: probe-collector:latest
     command: --port collector --kafka 172.16.16.28:9093
     privileged: true
@@ -115,6 +122,7 @@ services:
         condition: service_healthy
 
   pt-probegen:
+    container_name: pt-probegen
     image: pt-probegen:latest
     command: --ptprobegen-port=linux1 --api-endpoint=0.0.0.0:50001
     privileged: true
@@ -122,6 +130,29 @@ services:
       - NET_ADMIN
       - NET_RAW
     network_mode: host
+
+  pt-probegen-client:
+    container_name: pt-probegen-client
+    image: pt-probegen-client:latest
+    command:
+      [
+        "--fls=1",
+        "--fle=60",
+        "--ppf=100",
+        "--pps=5",
+        "--tc=1",
+        "--src-addr=fcbb:bb00:1::1",
+        "--tef-sid=fcbb:bb00:7:f0ef::",
+        "--segment-list=fcbb:bb00:7:f0ef::",
+        "--ptprobegen=127.0.0.1:50001"
+      ]
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+    network_mode: host
+    depends_on:
+      - pt-probegen
 
 networks:
   pt:
